@@ -280,3 +280,124 @@ end)runFunction(function()
 			    end
 			})
 		end)
+runcode(function()
+	FpsDisplay = GuiLibrary["ObjectsThatCanBeSaved"]["RenderWindow"]["Api"].CreateOptionsButton({
+		["Name"] = "FpsDisplay",
+		["HoverText"] = "Grass gave me this so dont hate if skidded :sob:",
+		["Function"] = function(callback)
+			if callback then
+				local textlab = Instance.new("TextLabel")
+				textlab.Size = UDim2.new(0, 200, 0, 28)
+				textlab.BackgroundTransparency = 1
+				textlab.TextColor3 = Color3.new(1, 1, 1)
+				textlab.TextStrokeTransparency = 0
+				textlab.TextStrokeColor3 = Color3.new(0.24, 0.24, 0.24)
+				textlab.Font = Enum.Font.SourceSans
+				textlab.TextSize = 28
+				textlab.Text = "1 FPS"
+				textlab.BackgroundColor3 = Color3.new(0, 0, 0)
+				textlab.Position = UDim2.new(1, -254, 0, -10)
+				textlab.TextXAlignment = Enum.TextXAlignment.Right
+				textlab.BorderSizePixel = 0
+				textlab.Parent = game.CoreGui.RobloxGui
+				spawn(function()
+					local RunService = game:GetService("RunService")
+					local FpsLabel = textlab
+					
+					local TimeFunction = RunService:IsRunning() and time or os.clock
+					
+					local LastIteration, Start
+					local FrameUpdateTable = {}
+					
+					local function loopupdate()
+						LastIteration = TimeFunction()
+						for Index = #FrameUpdateTable, 1, -1 do
+							FrameUpdateTable[Index + 1] = FrameUpdateTable[Index] >= LastIteration - 1 and FrameUpdateTable[Index] or nil
+						end
+					
+						FrameUpdateTable[1] = LastIteration
+						FpsLabel.Text = tostring(math.floor(TimeFunction() - Start >= 1 and #FrameUpdateTable or #FrameUpdateTable / (TimeFunction() - Start))) .. " FPS"
+					end
+					
+					Start = TimeFunction()
+					RunService.Heartbeat:Connect(loopupdate)
+				end)
+			else
+				pcall(function()
+					textlab:Remove()
+				end)
+			end
+		end
+	})
+end) runFunction(function()
+			local cameraunlock = {Enabled = false}
+			local cameraunlockdistance = {Value = 14}
+			local oldzoomdistance = 14
+			cameraunlock = GuiLibrary.ObjectsThatCanBeSaved.RenderWindow.Api.CreateOptionsButton({
+				Name = "InfiniteCamera",
+				HoverText = "Unlock your camera's zoom distance.",
+				Function = function(callback)
+					if callback then
+						task.spawn(function()
+							local camera, attribute = pcall(function() return lplr.CameraMaxZoomDistance end)
+							if not camera then repeat camera, attribute = pcall(function() return lplr.CameraMaxZoomDistance end) task.wait() until camera end
+							oldzoomdistance = attribute
+							lplr.CameraMaxZoomDistance = cameraunlockdistance.Value
+						end)
+					else
+						pcall(function() lplr.CameraMaxZoomDistance = oldzoomdistance end)
+					end
+				end
+			})
+			oldzoomdistance = cameraunlock.CreateSlider({
+				Name = "Zoom-Out Distance",
+				Min = 14,
+				Max = 1000,
+				Function = function(callback) 
+					if cameraunlock.Enabled then
+					pcall(function() lplr.CameraMaxZoomDistance = callback end) 
+					end
+				end
+			})
+		end)runFunction(function()
+                pcall(GuiLibrary.RemoveObject, "InfiniteJumpOptionsButton")
+				local InfiniteJump = {Enabled = false}
+				local InfiniteJumpMode = {Value = "Hold"}
+				InfiniteJump = GuiLibrary.ObjectsThatCanBeSaved.BlatantWindow.Api.CreateOptionsButton({
+					Name = "InfiniteJump",
+					HoverText = "Jump freely with no limitations (maybe not with anti-cheat :omegalol:).",
+					Function = function(callback)
+						if callback then
+							task.spawn(function()
+								table.insert(InfiniteJump.Connections, inputService.JumpRequest:Connect(function()
+								if InfiniteJumpMode.Value == "Hold" then
+									if isAlive(lplr) and isnetworkowner(lplr.Character.HumanoidRootPart) then
+								      lplr.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+									  local raycast = workspace:Raycast(lplr.Character.PrimaryPart.Position, Vector3.new(0, -2000, 0), bedwarsStore.blockRaycast)
+		                              raycast = raycast and GetMagnitudeOf2Objects(lplr.Character.HumanoidRootPart, raycast) or nil
+									  NebulawareStore.jumpTick = tick() + (raycast and raycast / 35 or 4.5)
+								    end
+								end
+							end))
+							table.insert(InfiniteJump.Connections, inputService.InputBegan:Connect(function(input)
+								if InfiniteJumpMode.Value == "Single" and input.KeyCode == Enum.KeyCode.Space and not inputService:GetFocusedTextBox() then
+									if isAlive(lplr) and isnetworkowner(lplr.Character.HumanoidRootPart) then
+									lplr.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+									local raycast = workspace:Raycast(lplr.Character.PrimaryPart.Position, Vector3.new(0, -2000, 0), bedwarsStore.blockRaycast)
+		                            raycast = raycast and GetMagnitudeOf2Objects(lplr.Character.HumanoidRootPart, raycast) or nil
+									NebulawareStore.jumpTick = tick() + (raycast and raycast / 35 or 1)
+									end
+								end
+							end))
+						end)
+					  end
+				   end
+				})
+				if not NebulawareStore.MobileInUse then
+				InfiniteJumpMode = InfiniteJump.CreateDropdown({
+					Name = "Mode",
+					List = {"Single", "Hold"},
+					Function = function() end
+				})
+			end
+			end)
