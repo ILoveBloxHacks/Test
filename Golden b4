@@ -7,7 +7,7 @@ local Settings = {
     AntiKb = {Value = false,HorizontalKb = 0,VerticalKb = 0},
     AutoQueue = {Value = false},
     AutoBank = {Value = false},
-    AutoForge = {Value = false,Sword = false,Daggers = false,Scythe = false,Hammer = false,Bow = false,Armor = false},
+    AutoForge = {Value = false,Sword = false,Daggers = true,Scythe = false,Hammer = false,Bow = false,Armor = false},
     Fly = {Value = false,Up = 50, Down = 50},
     InfFly = {Value = false,Up = 50, Down = 50},
     HighJump = {Value = false, Jump = 100},
